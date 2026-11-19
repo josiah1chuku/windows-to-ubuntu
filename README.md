@@ -34,8 +34,8 @@ The problems hit along the way, and their fixes, are in [docs/troubleshooting.md
 
 ```bash
 sudo apt install -y git make
-git clone https://github.com/<you>/dell-precision-7550-ubuntu.git
-cd dell-precision-7550-ubuntu
+git clone https://github.com/josiah1chuku/windows-to-ubuntu.git
+cd windows-to-ubuntu
 make post-install   # updates, NVIDIA, firmware check, firewall, base packages, Timeshift
 make dev-tools      # VS Code, Docker, Azure CLI, Bicep, kubectl, kubelogin, Terraform, Helm, Argo CD, pwsh, gh
 make verify         # prints a PASS/WARN report

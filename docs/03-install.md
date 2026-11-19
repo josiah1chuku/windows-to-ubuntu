@@ -33,7 +33,7 @@ F12 at the Dell logo → UEFI Boot → the USB stick → **Try or Install Ubuntu
 | Disk setup | It defaults to *Install alongside Windows Boot Manager*. **Change it to Erase disk and install Ubuntu.** |
 | Encryption and file system | **Encrypt with a passphrase** (LUKS on LVM). Not "hardware-backed": TPM unlock can ask for a recovery key after BIOS or driver changes. Advanced options: leave ext4. |
 | Account | Require password to log in. Not Active Directory. |
-| Location | Nearest city (here: Fort Walton Beach → America/Chicago) |
+| Location | Nearest city (this build: America/Chicago) |
 | Review | Should show `nvme0n1` erased, LUKS (LVM), Codecs & drivers. The USB stick (`sda1`) should show *Unchanged*. |
 
 Expect about 20 minutes. Then **Restart now**, remove the stick when prompted ("installation medium"), and press Enter.

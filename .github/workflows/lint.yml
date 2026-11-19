@@ -1,3 +1,6 @@
+# Continuous integration: static checks on every push and pull request.
+# Nothing is installed or run against a real machine here. It only catches
+# scripting and YAML mistakes before anyone runs the scripts on a laptop.
 name: lint
 
 on:
@@ -9,10 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # shellcheck finds common bash bugs: unquoted variables, bad tests, unsafe patterns
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      # Same checks as running `make lint` locally: shellcheck + YAML parse
       - name: Lint
         run: make lint
+
+      # PSScriptAnalyzer is the PowerShell equivalent of shellcheck.
+      # Fails the build only on Error severity (warnings are reported but allowed).
       - name: PSScriptAnalyzer
         shell: pwsh
         run: |

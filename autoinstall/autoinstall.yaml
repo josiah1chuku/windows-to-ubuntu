@@ -1,39 +1,65 @@
 #cloud-config
+# =============================================================================
 # Ubuntu 26.04 Desktop autoinstall template for the Precision 7550.
-# Mirrors the manual install in docs/03-install.md.
 #
-# By default it asks you for the account and the disk/encryption screens (interactive-sections),
-# so no secrets live in this file. To go fully unattended, copy it to autoinstall/<name>.local.yaml
-# (git-ignored), remove interactive-sections and fill in identity + storage.layout.password.
+# What it is: an answer file for the Ubuntu installer (Subiquity). In the
+# installer's "Type of installation" screen, choose
+# "Automated with autoinstall file" and point it at this file. Every choice
+# made by hand in docs/03-install.md is then made automatically.
 #
-# Status: template, not yet run end to end on this machine. Review before use; it ERASES the disk.
+# Secrets policy: by default the installer still ASKS for the user account
+# and the disk/encryption screens (interactive-sections), so no passwords live
+# in this file and it's safe to keep in a public repo.
+# To go fully unattended, copy it to autoinstall/<name>.local.yaml
+# (git-ignored), remove interactive-sections and fill in the commented identity
+# and storage.layout.password blocks.
+#
+# Status: template, not yet run end to end on this machine. Review it before
+# use; it ERASES the disk.
+# =============================================================================
 autoinstall:
   version: 1
+
+  # Screens the installer still shows. Everything not listed here is answered
+  # from this file. These two are the ones that would otherwise need secrets.
   interactive-sections:
-    - identity
-    - storage
+    - identity      # name, username, hostname, login password
+    - storage       # disk choice + LUKS passphrase
+
   locale: en_US.UTF-8
   keyboard:
-    layout: us
+    layout: us      # the 7550 has a US keyboard; picking UK would mis-map several keys
   timezone: America/Chicago
-  # Fully unattended alternative (in a .local.yaml only):
+
+  # --- Fully unattended alternative (only in a git-ignored .local.yaml) ------
   # identity:
   #   realname: "Your Name"
   #   username: yourname
   #   hostname: precision-7550
-  #   password: "<output of: mkpasswd -m sha-512>"
+  #   password: "<output of: mkpasswd -m sha-512>"   # a hash, never the plain password
   # storage:
   #   layout:
   #     name: lvm
-  #     password: "<LUKS passphrase>"
+  #     password: "<LUKS passphrase>"                # setting a password here = encrypted LVM
+
+  # Disk layout: LVM, the same as "Erase disk" + "Encrypt with a passphrase" in
+  # the manual install. With storage listed under interactive-sections, this is
+  # the default the screen opens with.
   storage:
     layout:
       name: lvm
+
+  # "Install third-party software for graphics and Wi-Fi hardware"
+  # = the NVIDIA proprietary driver for the Quadro T1000
   drivers:
-    install: true          # NVIDIA proprietary driver
+    install: true
+  # "Download and install support for additional media formats"
   codecs:
     install: true
+  # Install all available updates during the install, not just security ones
   updates: all
+
+  # Extra packages, so the repo's Makefile and scripts can run right after first boot
   packages:
     - git
     - curl
@@ -41,7 +67,10 @@ autoinstall:
     - make
     - timeshift
     - mokutil
+
+  # Commands run against the installed system just before the first reboot.
+  # curtin in-target runs them inside the new install, not the live USB session.
   late-commands:
-    # Pull this repo into the new user's home on first login is left manual on purpose;
-    # here we only enable the firewall in the target system.
+    # Firewall on from the first boot. The rest of the setup is left to
+    # `make post-install`, so it stays in one place and can be re-run.
     - curtin in-target -- ufw --force enable

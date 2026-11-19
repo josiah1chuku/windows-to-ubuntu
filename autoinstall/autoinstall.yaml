@@ -1,0 +1,47 @@
+#cloud-config
+# Ubuntu 26.04 Desktop autoinstall template for the Precision 7550.
+# Mirrors the manual install in docs/03-install.md.
+#
+# By default it asks you for the account and the disk/encryption screens (interactive-sections),
+# so no secrets live in this file. To go fully unattended, copy it to autoinstall/<name>.local.yaml
+# (git-ignored), remove interactive-sections and fill in identity + storage.layout.password.
+#
+# Status: template, not yet run end to end on this machine. Review before use; it ERASES the disk.
+autoinstall:
+  version: 1
+  interactive-sections:
+    - identity
+    - storage
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  timezone: America/Chicago
+  # Fully unattended alternative (in a .local.yaml only):
+  # identity:
+  #   realname: "Your Name"
+  #   username: yourname
+  #   hostname: precision-7550
+  #   password: "<output of: mkpasswd -m sha-512>"
+  # storage:
+  #   layout:
+  #     name: lvm
+  #     password: "<LUKS passphrase>"
+  storage:
+    layout:
+      name: lvm
+  drivers:
+    install: true          # NVIDIA proprietary driver
+  codecs:
+    install: true
+  updates: all
+  packages:
+    - git
+    - curl
+    - jq
+    - make
+    - timeshift
+    - mokutil
+  late-commands:
+    # Pull this repo into the new user's home on first login is left manual on purpose;
+    # here we only enable the firewall in the target system.
+    - curtin in-target -- ufw --force enable

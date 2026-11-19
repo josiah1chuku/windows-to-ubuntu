@@ -1,0 +1,5 @@
+# Filled-in autoinstall files can hold passwords
+autoinstall/*.local.yaml
+*.iso
+*.log
+.DS_Store
